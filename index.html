@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Motivation Tracker</title>
+  <title>Productivity Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -34,19 +34,19 @@
       cursor: pointer;
     }
   
-    #motivation-list {
+    #productivity-list {
       list-style-type: none;
       padding: 0;
     }
   
-    .motivation-item {
+    .productivity-item {
       margin-bottom: 10px;
       padding: 10px;
       border: 1px solid #ccc;
       position: relative;
     }
   
-    .motivation-item span {
+    .productivity-item span {
       font-weight: bold;
     }
   
@@ -80,7 +80,7 @@
         margin-right: 0;
       }
   
-      .motivation-item {
+      .productivity-item {
         font-size: 0.8rem;
       }
   
@@ -97,11 +97,11 @@
   
 </head>
 <body>
-  <h1>Motivation Tracker</h1>
+  <h1>Productivity Tracker</h1>
   
-  <form id="motivation-form">
-    <label for="motivation-level">Motivation Level:</label>
-    <select id="motivation-level" required>
+  <form id="productivity-form">
+    <label for="productivity-level">Productivity Level:</label>
+    <select id="productivity-level" required>
       <option value="">Select</option>
       <option value="1">1</option>
       <option value="2">2</option>
@@ -114,8 +114,8 @@
  
 
   
-<h2>Recent Motivation Entries</h2>
-<ul id="motivation-list"></ul>
+<h2>Recent Productivity Entries</h2>
+<ul id="productivity-list"></ul>
 
 <div>
   <button id="export-excel-btn">Export to Excel</button>
@@ -124,20 +124,20 @@
 
   
 <script>
-  const form = document.getElementById('motivation-form');
-  const list = document.getElementById('motivation-list');
+  const form = document.getElementById('productivity-form');
+  const list = document.getElementById('productivity-list');
   const exportExcelBtn = document.getElementById('export-excel-btn');
   const copyClipboardBtn = document.getElementById('copy-clipboard-btn');
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const motivationLevel = document.getElementById('motivation-level').value;
+    const productivityLevel = document.getElementById('productivity-level').value;
     const currentTime = new Date().toLocaleString();
 
     const listItem = document.createElement('li');
-    listItem.classList.add('motivation-item');
-    listItem.innerHTML = `<span>Motivation Level:</span> ${motivationLevel} - <span>Time:</span> ${currentTime}`;
+    listItem.classList.add('productivity-item');
+    listItem.innerHTML = `<span>Productivity Level:</span> ${productivityLevel} - <span>Time:</span> ${currentTime}`;
 
     const deleteButton = document.createElement('button');
     deleteButton.classList.add('delete-btn');
@@ -145,14 +145,14 @@
 
     deleteButton.addEventListener('click', function() {
       listItem.remove();
-      removeEntry(motivationLevel, currentTime);
+      removeEntry(productivityLevel, currentTime);
     });
 
     listItem.appendChild(deleteButton);
 
     list.insertBefore(listItem, list.firstChild);
 
-    saveEntry(motivationLevel, currentTime);
+    saveEntry(productivityLevel, currentTime);
 
     form.reset();
   });
@@ -162,20 +162,20 @@
   });
 
   function saveEntry(level, time) {
-    let entries = JSON.parse(localStorage.getItem('motivationEntries')) || [];
+    let entries = JSON.parse(localStorage.getItem('productivityEntries')) || [];
 
     entries.push({ level, time });
-    localStorage.setItem('motivationEntries', JSON.stringify(entries));
+    localStorage.setItem('productivityEntries', JSON.stringify(entries));
   }
 
   function loadEntries() {
-    const entries = JSON.parse(localStorage.getItem('motivationEntries'));
+    const entries = JSON.parse(localStorage.getItem('productivityEntries'));
 
     if (entries) {
       entries.reverse().forEach(function(entry) {
         const listItem = document.createElement('li');
-        listItem.classList.add('motivation-item');
-        listItem.innerHTML = `<span>Motivation Level:</span> ${entry.level} - <span>Time:</span> ${entry.time}`;
+        listItem.classList.add('productivity-item');
+        listItem.innerHTML = `<span>Productivity Level:</span> ${entry.level} - <span>Time:</span> ${entry.time}`;
 
         const deleteButton = document.createElement('button');
         deleteButton.classList.add('delete-btn');
@@ -194,29 +194,29 @@
   }
 
   function removeEntry(level, time) {
-    let entries = JSON.parse(localStorage.getItem('motivationEntries'));
+    let entries = JSON.parse(localStorage.getItem('productivityEntries'));
 
     entries = entries.filter(function(entry) {
       return !(entry.level === level && entry.time === time);
     });
 
-    localStorage.setItem('motivationEntries', JSON.stringify(entries));
+    localStorage.setItem('productivityEntries', JSON.stringify(entries));
   }
 
   exportExcelBtn.addEventListener('click', function() {
-    const entries = JSON.parse(localStorage.getItem('motivationEntries'));
+    const entries = JSON.parse(localStorage.getItem('productivityEntries'));
     if (entries) {
       const worksheet = XLSX.utils.json_to_sheet(entries);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Motivation Entries');
-      XLSX.writeFile(workbook, 'motivation_entries.xlsx');
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Productivity Entries');
+      XLSX.writeFile(workbook, 'productivity_entries.xlsx');
     } else {
       console.log('No entries to export.');
     }
   });
 
   copyClipboardBtn.addEventListener('click', function() {
-    const entries = JSON.parse(localStorage.getItem('motivationEntries'));
+    const entries = JSON.parse(localStorage.getItem('productivityEntries'));
     if (entries) {
       const clipboardData = entries.map(entry => Object.values(entry).join('\t')).join('\n');
       const clipboard = new ClipboardJS('#copy-clipboard-btn', {
