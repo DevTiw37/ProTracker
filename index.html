@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Motivation Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  
+    form {
+      margin-bottom: 10px;
+    }
+  
+    input[type="submit"] {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  
+    #motivation-list {
+      list-style-type: none;
+      padding: 0;
+    }
+  
+    .motivation-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+  
+    .motivation-item span {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Motivation Tracker</h1>
+  
+  <form id="motivation-form">
+    <label for="motivation-level">Motivation Level:</label>
+    <input type="number" id="motivation-level" min="0" max="100" required>
+    <input type="submit" value="Submit">
+  </form>
+  
+  <h2>Recent Motivation Entries</h2>
+  <ul id="motivation-list"></ul>
+  
+  <script>
+    const form = document.getElementById('motivation-form');
+    const list = document.getElementById('motivation-list');
+  
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+  
+      const motivationLevel = document.getElementById('motivation-level').value;
+      const currentTime = new Date().toLocaleString();
+  
+      const listItem = document.createElement('li');
+      listItem.classList.add('motivation-item');
+      listItem.innerHTML = `<span>Motivation Level:</span> ${motivationLevel} - <span>Time:</span> ${currentTime}`;
+  
+      list.insertBefore(listItem, list.firstChild);
+  
+      form.reset();
+    });
+  </script>
+</body>
+</html>
