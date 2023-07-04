@@ -5,10 +5,25 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+    }
+  
+    h1, h2 {
+      text-align: center;
     }
   
     form {
       margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    select {
+      padding: 5px;
+      margin-right: 5px;
     }
   
     input[type="submit"] {
@@ -28,43 +43,201 @@
       margin-bottom: 10px;
       padding: 10px;
       border: 1px solid #ccc;
+      position: relative;
     }
   
     .motivation-item span {
       font-weight: bold;
     }
+  
+    .delete-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 5px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+  
+    .delete-btn:hover {
+      background-color: #ff4646;
+    }
+  
+    #export-button {
+      padding: 5px 10px;
+      background-color: #4287f5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  
+    @media screen and (max-width: 480px) {
+      select, input[type="submit"], #export-button {
+        width: 100%;
+        margin-right: 0;
+      }
+  
+      .motivation-item {
+        font-size: 0.8rem;
+      }
+  
+      .delete-btn {
+        top: 2px;
+        right: 2px;
+        padding: 2px;
+        font-size: 0.6rem;
+      }
+    }
   </style>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
+  
 </head>
 <body>
   <h1>Motivation Tracker</h1>
   
   <form id="motivation-form">
     <label for="motivation-level">Motivation Level:</label>
-    <input type="number" id="motivation-level" min="0" max="100" required>
+    <select id="motivation-level" required>
+      <option value="">Select</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
     <input type="submit" value="Submit">
   </form>
+ 
+
   
-  <h2>Recent Motivation Entries</h2>
-  <ul id="motivation-list"></ul>
+<h2>Recent Motivation Entries</h2>
+<ul id="motivation-list"></ul>
+
+<div>
+  <button id="export-excel-btn">Export to Excel</button>
+  <button id="copy-clipboard-btn">Copy to Clipboard</button>
+</div>
+
   
-  <script>
-    const form = document.getElementById('motivation-form');
-    const list = document.getElementById('motivation-list');
-  
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-  
-      const motivationLevel = document.getElementById('motivation-level').value;
-      const currentTime = new Date().toLocaleString();
-  
-      const listItem = document.createElement('li');
-      listItem.classList.add('motivation-item');
-      listItem.innerHTML = `<span>Motivation Level:</span> ${motivationLevel} - <span>Time:</span> ${currentTime}`;
-  
-      list.insertBefore(listItem, list.firstChild);
-  
-      form.reset();
+<script>
+  const form = document.getElementById('motivation-form');
+  const list = document.getElementById('motivation-list');
+  const exportExcelBtn = document.getElementById('export-excel-btn');
+  const copyClipboardBtn = document.getElementById('copy-clipboard-btn');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const motivationLevel = document.getElementById('motivation-level').value;
+    const currentTime = new Date().toLocaleString();
+
+    const listItem = document.createElement('li');
+    listItem.classList.add('motivation-item');
+    listItem.innerHTML = `<span>Motivation Level:</span> ${motivationLevel} - <span>Time:</span> ${currentTime}`;
+
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('delete-btn');
+    deleteButton.innerText = 'Delete';
+
+    deleteButton.addEventListener('click', function() {
+      listItem.remove();
+      removeEntry(motivationLevel, currentTime);
     });
-  </script>
+
+    listItem.appendChild(deleteButton);
+
+    list.insertBefore(listItem, list.firstChild);
+
+    saveEntry(motivationLevel, currentTime);
+
+    form.reset();
+  });
+
+  window.addEventListener('load', function() {
+    loadEntries();
+  });
+
+  function saveEntry(level, time) {
+    let entries = JSON.parse(localStorage.getItem('motivationEntries')) || [];
+
+    entries.push({ level, time });
+    localStorage.setItem('motivationEntries', JSON.stringify(entries));
+  }
+
+  function loadEntries() {
+    const entries = JSON.parse(localStorage.getItem('motivationEntries'));
+
+    if (entries) {
+      entries.reverse().forEach(function(entry) {
+        const listItem = document.createElement('li');
+        listItem.classList.add('motivation-item');
+        listItem.innerHTML = `<span>Motivation Level:</span> ${entry.level} - <span>Time:</span> ${entry.time}`;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-btn');
+        deleteButton.innerText = 'Delete';
+
+        deleteButton.addEventListener('click', function() {
+          listItem.remove();
+          removeEntry(entry.level, entry.time);
+        });
+
+        listItem.appendChild(deleteButton);
+
+        list.appendChild(listItem);
+      });
+    }
+  }
+
+  function removeEntry(level, time) {
+    let entries = JSON.parse(localStorage.getItem('motivationEntries'));
+
+    entries = entries.filter(function(entry) {
+      return !(entry.level === level && entry.time === time);
+    });
+
+    localStorage.setItem('motivationEntries', JSON.stringify(entries));
+  }
+
+  exportExcelBtn.addEventListener('click', function() {
+    const entries = JSON.parse(localStorage.getItem('motivationEntries'));
+    if (entries) {
+      const worksheet = XLSX.utils.json_to_sheet(entries);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Motivation Entries');
+      XLSX.writeFile(workbook, 'motivation_entries.xlsx');
+    } else {
+      console.log('No entries to export.');
+    }
+  });
+
+  copyClipboardBtn.addEventListener('click', function() {
+    const entries = JSON.parse(localStorage.getItem('motivationEntries'));
+    if (entries) {
+      const clipboardData = entries.map(entry => Object.values(entry).join('\t')).join('\n');
+      const clipboard = new ClipboardJS('#copy-clipboard-btn', {
+        text: function() {
+          return clipboardData;
+        }
+      });
+      clipboard.on('success', function(e) {
+        console.log('Copied to clipboard');
+        clipboard.destroy();
+      });
+      clipboard.on('error', function(e) {
+        console.log('Failed to copy to clipboard');
+        clipboard.destroy();
+      });
+      clipboard.onClick({ currentTarget: document.getElementById('copy-clipboard-btn') });
+    } else {
+      console.log('No entries to copy.');
+    }
+  });
+</script>
+
 </body>
 </html>
