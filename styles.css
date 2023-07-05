@@ -1,49 +1,90 @@
+
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
+  padding: 10px;
 }
 
-header {
-  background-color: #333;
-  color: #fff;
-  padding: 20px;
-}
-
-main {
-  padding: 20px;
+h1, h2 {
+  text-align: center;
 }
 
 form {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 select {
-  margin-bottom: 10px;
+  padding: 5px;
+  margin-right: 5px;
 }
 
-button {
-  background-color: #333;
-  color: #fff;
+input[type="submit"] {
   padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
   border: none;
   cursor: pointer;
 }
 
-h2 {
-  margin-top: 0;
-}
-
-ul {
+#productivity-list {
   list-style-type: none;
   padding: 0;
 }
 
-li {
+.productivity-item {
   margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.productivity-item span {
+  font-weight: bold;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 5px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #ff4646;
+}
+
+#export-button {
+  padding: 5px 10px;
+  background-color: #4287f5;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 480px) {
+  select, input[type="submit"], #export-button {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .productivity-item {
+    font-size: 0.8rem;
+  }
+
+  .delete-btn {
+    top: 2px;
+    right: 2px;
+    padding: 2px;
+    font-size: 0.6rem;
+  }
 }
